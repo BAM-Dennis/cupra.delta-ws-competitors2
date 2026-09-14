@@ -8,6 +8,20 @@ describe("Demo-Konfiguration", () => {
     expect(cfg.type).toBe("competitor-2");
     expect(cfg.interviewQuestions).toBe(3);
   });
+  it("hat sechs Motive, drei je Persona, ohne Überschneidung (Seed-Content)", () => {
+    const cfg = parseWorkshopConfig(demo);
+    expect(cfg.motives).toHaveLength(6);
+    const [a, b] = cfg.rounds.map((r) => r.persona.motives.map((m) => m.motiveId));
+    expect(a).toHaveLength(3);
+    expect(b).toHaveLength(3);
+    expect(a.filter((m) => b.includes(m))).toEqual([]);
+  });
+  it("jedes Motiv einer Persona wird von mindestens einem Feature bedient", () => {
+    const cfg = parseWorkshopConfig(demo);
+    cfg.rounds.forEach((r) =>
+      r.persona.motives.forEach((pm) => expect(cfg.features.some((f) => f.motiveIds.includes(pm.motiveId))).toBe(true)),
+    );
+  });
   it("hat zwei Runden mit eigener Persona und eigenem Wettbewerber", () => {
     const cfg = parseWorkshopConfig(demo);
     expect(cfg.rounds).toHaveLength(2);

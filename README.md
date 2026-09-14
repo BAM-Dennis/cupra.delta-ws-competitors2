@@ -2,7 +2,7 @@
 
 Workshop-App für das CUPRA Global Launch Training, Workshop „Competitor II“ (emotional, Marke und Kaufmotive). Teilnehmer interviewen per Smartphone eine Persona mit offenen Fragen, decken ihre Kaufmotive auf, erkunden CUPRA und Wettbewerber entlang dieser Motive und nennen die CUPRA-Features, die darauf einzahlen. Der Trainer steuert die Session und zeigt auf der Leinwand am Ende, welche Features die Gruppe welchem Motiv zugeordnet hat.
 
-Konzept: [SAPERED_Workshop-App_Konzept_Aufwandsschaetzung_CompII.md](SAPERED_Workshop-App_Konzept_Aufwandsschaetzung_CompII.md) · Plan: [umsetzungsplan.md](umsetzungsplan.md)
+Konzept: [SAPERED_Workshop-App_Konzept_Aufwandsschaetzung_CompII.md](SAPERED_Workshop-App_Konzept_Aufwandsschaetzung_CompII.md) · Seed-Content: [SAPERED_Workshop-App_SeedContent_CompII.md](SAPERED_Workshop-App_SeedContent_CompII.md) · Plan: [umsetzungsplan.md](umsetzungsplan.md)
 
 **Verhältnis zu Competitor I:** eigenes Repo, gleiche Plattform. Der Code ist eine Kopie der Comp-I-Struktur (`../cupra.delta-ws-competitor`), reduziert auf einen Workshop-Typ. Der ursprüngliche Comp-II-Code stammt aus Commit `3e13cab` im Comp-I-Repo.
 
@@ -54,7 +54,7 @@ Lobby → je Runde: Persona-Vorstellung, Interview, Motiv-Reveal, Erkundung, Fea
 
 - `src/engine/` – reine Funktionen: Konstanten (`config.ts`), Typen, zod-Schema der Konfiguration, Punkteregeln und Motiv-Clustering (`scoring.ts`), Session-Zustandsmaschine (`session.ts`).
 - `src/scoring/` – `Scorer`-Interface (`answerInterview`, `scoreFeature`, `summarizeRound`) und `keywordScorer`. Der `llmScorer` (Phase 2) implementiert dasselbe Interface.
-- `src/data/config/demo.json` – Demo-Konfiguration: Marken, vier Motive, sieben Features mit Motiv-Zuordnung (many-to-many), zwei Personas mit Motiv-Themen, Aufdeck-Sätzen und Stups-Texten, Erkundungs-Kategorien. **Fachliche Platzhalter**, die echten Inhalte kommen von CUPRA.
+- `src/data/config/demo.json` – Konfiguration nach dem SAPERED-Seed-Content vom 14.09.2026: Marken, sechs Motive (drei je Persona: Nico gegen MINI, Sara gegen smart), acht Features mit Motiv-Zuordnung (many-to-many), Persona-Profile, Zitate, Probe-Themen, Aufdeck-Sätze, Stups-Texte und Erkundungs-Kategorien. **Platzhalter von SAPERED**, final bestätigt CUPRA. Die `keywords` an Motiven und Features sind Ergänzungen für den Keyword-Scorer.
 - `src/components/participant/` – Teilnehmer-Screens, `ParticipantApp.tsx` schaltet nach Phase.
 - `src/components/trainer/` – Leinwand: `TrainerApp.tsx` (Kopf, Steuerleiste, Phasen-Stepper) und `views.tsx`.
 - `src/components/shared/` – Feedback-Element, Leaderboard, UI-Bausteine, Hintergründe und Icons aus der Streak Challenge.
@@ -67,4 +67,4 @@ Lobby → je Runde: Persona-Vorstellung, Interview, Motiv-Reveal, Erkundung, Fea
 
 ## Punkte
 
-Interview: 1 Punkt pro aufgedecktem Motiv, maximal eins pro Frage, geschlossene Fragen decken nichts auf. Feature: 1 Punkt für ein erkanntes CUPRA-Feature, 1 Punkt zusätzlich, wenn das Paar Feature/Motiv im Modell steht. Drei Features pro Runde, drei Fragen (konfigurierbar). Maximum je Runde bei drei Motiven: 9 Punkte. Werte in `src/engine/config.ts`.
+Interview: 1 Punkt pro aufgedecktem Motiv, maximal eins pro Frage, geschlossene Fragen decken nichts auf. Feature: 1 Punkt für ein erkanntes CUPRA-Feature, 1 Punkt zusätzlich, wenn das Paar Feature/Motiv im Modell steht. Drei Features pro Runde, drei Fragen (konfigurierbar). Maximum je Runde bei drei Motiven: 9 Punkte, wie im Seed-Content vorgesehen. Werte in `src/engine/config.ts`.
