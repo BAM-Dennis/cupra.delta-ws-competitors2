@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { WS_CONFIG } from "@/engine/config";
 import type { LeaderboardEntry, MotiveCluster, WorkshopConfig } from "@/engine/types";
 import type { DemoProgress } from "@/lib/demoData";
+import { displayCode } from "@/lib/participant";
 import { useClientValue } from "@/lib/useClientValue";
 import { Bar, BigStat, Chip, Glyph } from "../shared/bits";
 import { LeaderboardList } from "../shared/LeaderboardList";
@@ -44,7 +45,7 @@ export function LobbyView({ code, participants }: { code: string; participants: 
           <span className="h-12 w-px bg-white/15" />
           <div className="flex flex-col">
             <span className="text-[12px] uppercase tracking-[1px] text-white/50">or type</span>
-            <span className="text-[22px] font-medium tracking-[4px]">{code}</span>
+            <span className="text-[22px] font-medium tracking-[4px]">{displayCode(code)}</span>
             <span className="text-[13px] text-white/40">{url.replace(/^https?:\/\//, "")}</span>
           </div>
         </div>
@@ -67,7 +68,7 @@ export function PersonaIntroView({ config, round }: { config: WorkshopConfig; ro
   return (
     <div className="grid flex-1 grid-cols-[1.1fr_1fr] gap-16">
       <div className="flex flex-col gap-6">
-        <RoundTag round={round} total={config.rounds.length} />
+        <ExplorationTag config={config} round={round} />
         <div className="flex items-center gap-6">
           <div className="flex size-24 items-center justify-center rounded-full bg-copper-gradient text-[40px] font-medium">{r.persona.name[0]}</div>
           <div>
@@ -107,7 +108,7 @@ export function InterviewProgressView({ config, round, progress }: { config: Wor
   return (
     <div className="grid flex-1 grid-cols-[1fr_1.2fr] gap-16">
       <div className="flex flex-col gap-6">
-        <RoundTag round={round} total={config.rounds.length} />
+        <ExplorationTag config={config} round={round} />
         <h1 className={H}>
           Interview
           <br />
@@ -153,7 +154,7 @@ export function MotivesView({ config, round }: { config: WorkshopConfig; round: 
     <div className="flex flex-1 flex-col gap-8 animate-reveal">
       <div className="flex items-end justify-between">
         <div className="flex flex-col gap-4">
-          <RoundTag round={round} total={config.rounds.length} />
+          <ExplorationTag config={config} round={round} />
           <h1 className={H}>
             What really drives <span className="font-medium">{r.persona.name}</span>.
           </h1>
@@ -185,7 +186,7 @@ export function ExploreView({ config, round }: { config: WorkshopConfig; round: 
     <div className="flex flex-1 flex-col gap-8">
       <div className="flex items-end justify-between">
         <div className="flex flex-col gap-4">
-          <RoundTag round={round} total={config.rounds.length} />
+          <ExplorationTag config={config} round={round} />
           <h1 className={H}>To the cars.</h1>
         </div>
         <p className="max-w-[480px] text-right text-[18px] text-white/60">Explore along the categories on your phone. Nothing to type yet.</p>
@@ -219,7 +220,7 @@ export function FeaturesProgressView({ config, round, progress }: { config: Work
   return (
     <div className="grid flex-1 grid-cols-[1fr_1.2fr] gap-16">
       <div className="flex flex-col gap-6">
-        <RoundTag round={round} total={config.rounds.length} />
+        <ExplorationTag config={config} round={round} />
         <h1 className={H}>
           Top {WS_CONFIG.FEATURES_PER_ROUND} features
           <br />
@@ -266,50 +267,60 @@ export function FeaturesProgressView({ config, round, progress }: { config: Work
 
 /* ---------------- Zusammenfassung nach Motiv (US-5) ---------------- */
 
+/**
+ * Leinwand-Zusammenfassung nach Magnus' Figma-Redesign: sechs gleich breite Karten in einer
+ * Reihe ab 1280 px, drei Spalten auf mittleren, zwei auf kleinen Bildschirmen. Schrift skaliert
+ * per clamp, nichts bricht aus den Karten aus, kein horizontales Scrollen.
+ */
 export function SummaryView({ config, clusters }: { config: WorkshopConfig; clusters: MotiveCluster[] }) {
-  const max = Math.max(1, ...clusters.flatMap((c) => c.items.map((i) => i.count)));
   return (
-    <div className="flex flex-1 flex-col gap-8 animate-reveal">
-      <div className="flex items-end justify-between">
-        <div className="flex flex-col gap-4">
+    <div className="flex min-w-0 flex-1 flex-col gap-6 animate-reveal xl:gap-8">
+      <div className="flex flex-wrap items-end justify-between gap-x-12 gap-y-3">
+        <div className="flex flex-col gap-3">
           <span className="text-[13px] font-medium uppercase tracking-[3px] text-teal">Summary</span>
-          <h1 className={H}>
+          <h1 className="text-[clamp(28px,2.7vw,44px)] font-light leading-[1.05]">
             What the room found,
             <br />
             <span className="font-medium">motive by motive.</span>
           </h1>
         </div>
-        <p className="max-w-[520px] text-right text-[18px] text-white/60">All features named by all participants across both rounds, clustered by the motive they were matched to.</p>
+        <p className="max-w-[440px] text-right text-[clamp(13px,1.05vw,17px)] leading-[1.4] text-white/60">
+          All features named by everyone in the room, clustered by the motive they were matched to.
+        </p>
       </div>
-      <div className="grid flex-1 gap-4" style={{ gridTemplateColumns: `repeat(${clusters.length}, minmax(0, 1fr))` }}>
-        {clusters.map((c) => {
-          const m = config.motives.find((x) => x.id === c.motiveId);
-          return (
-            <div key={c.motiveId} className="glass flex flex-col gap-4 rounded-[10px] p-6">
-              <div className="flex items-start justify-between gap-3">
-                <h2 className="text-[24px] font-medium leading-tight">{m?.label}</h2>
-                <span className="shrink-0 text-[28px] leading-none tabular-nums">
-                  {c.total}
-                  <span className="ml-1 text-[12px] uppercase tracking-[1px] text-white/50">named</span>
-                </span>
-              </div>
-              <ul className="flex flex-col gap-3">
-                {c.items.slice(0, 6).map((it) => (
-                  <li key={it.featureId ?? it.text} className="flex flex-col gap-1.5">
-                    <div className="flex items-baseline justify-between gap-3">
-                      <span className={`text-[16px] leading-[1.3] ${it.featureId ? "" : "italic text-white/60"}`}>{it.text}</span>
-                      <span className="shrink-0 text-[16px] tabular-nums text-white/70">{it.count}</span>
-                    </div>
-                    <Bar value={it.count / max} className="!h-1.5" tone={it.featureId ? "copper" : "teal"} />
-                  </li>
-                ))}
-                {c.items.length === 0 && <li className="text-[15px] text-white/40">Nothing named for this motive.</li>}
-              </ul>
-            </div>
-          );
-        })}
+      <div className="grid min-w-0 flex-1 grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6 xl:gap-4">
+        {clusters.map((c) => (
+          <MotiveCard key={c.motiveId} label={config.motives.find((x) => x.id === c.motiveId)?.label ?? c.motiveId} cluster={c} />
+        ))}
       </div>
     </div>
+  );
+}
+
+function MotiveCard({ label, cluster }: { label: string; cluster: MotiveCluster }) {
+  const items = cluster.items.slice(0, 6);
+  // Balkenbreite relativ zur häufigsten Nennung in dieser Karte
+  const max = Math.max(1, ...items.map((i) => i.count));
+  return (
+    <section className="glass flex min-w-0 flex-col rounded-[10px] p-4 xl:p-5">
+      <h2 className="min-h-[2.6em] text-balance text-[clamp(14px,1.15vw,20px)] font-medium leading-[1.3] [overflow-wrap:anywhere]">{label}</h2>
+      <ul className="mt-5 flex flex-col gap-3.5">
+        {items.map((it) => (
+          <li key={it.featureId ?? it.text} className="flex min-w-0 flex-col gap-1.5">
+            <div className="flex items-start justify-between gap-2">
+              <span className={`min-w-0 flex-1 text-[clamp(11px,0.85vw,14px)] leading-[1.3] [overflow-wrap:anywhere] ${it.featureId ? "text-white/85" : "italic text-white/55"}`}>{it.text}</span>
+              <span className="shrink-0 text-[clamp(11px,0.85vw,14px)] leading-[1.3] tabular-nums text-white/70">{it.count}</span>
+            </div>
+            <Bar value={it.count / max} className="!h-[3px]" tone={it.featureId ? "copper" : "teal"} />
+          </li>
+        ))}
+        {items.length === 0 && <li className="text-[clamp(11px,0.85vw,14px)] text-white/40">Nothing named for this motive.</li>}
+      </ul>
+      <div className="mt-auto flex items-baseline gap-2 pt-6">
+        <span className="text-[clamp(22px,1.9vw,32px)] leading-none tabular-nums text-copper-light">{cluster.total}</span>
+        <span className="text-[10px] font-medium uppercase leading-none tracking-[1.5px] text-white/50">motives named</span>
+      </div>
+    </section>
   );
 }
 
@@ -350,11 +361,14 @@ export function LeaderboardView({ leaderboard, ended }: { leaderboard: { top: Le
 
 /* ---------------- Hilfen ---------------- */
 
-function RoundTag({ round, total }: { round: number; total: number }) {
+/** Statt „Round 1 of 2“: die gespielte Erkundung, Persona gegen Wettbewerber. */
+function ExplorationTag({ config, round }: { config: WorkshopConfig; round: number }) {
+  const r = config.rounds[round];
+  const competitor = config.brands.find((b) => b.id === r.competitorBrandId);
   return (
     <div className="flex items-center gap-2">
       <Chip tone="teal" className="!text-[13px] !px-4 !py-1.5">
-        Round {round + 1} of {total}
+        {r.persona.name} vs {competitor?.short ?? competitor?.name}
       </Chip>
       <Glyph name="spark" className="size-4 text-copper-light" />
     </div>
