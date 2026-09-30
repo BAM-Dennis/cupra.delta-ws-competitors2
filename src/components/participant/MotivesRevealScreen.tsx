@@ -38,7 +38,6 @@ export function MotivesRevealScreen({ config, round, me }: { config: WorkshopCon
           );
         })}
       </ul>
-      <p className="text-center text-[12px] text-white/40">Next: find the CUPRA features that serve these motives.</p>
     </div>
   );
 }

@@ -22,7 +22,7 @@ export function LobbyScreen({ me, participants }: { me: Participant; participant
         <h2 className="text-[26px] font-light leading-tight">
           You&apos;re in{me.displayName ? `, ${me.displayName}` : ""}.
         </h2>
-        <p className="text-[15px] leading-[1.35] text-white/70">Waiting for the trainer to start the workshop. Keep this page open.</p>
+        <p className="text-[15px] leading-[1.35] text-white/70">One customer, one competitor, your CUPRA. Press start when you are ready.</p>
       </div>
       <Chip tone="glass">
         <Glyph name="users" className="size-3.5" />
@@ -40,7 +40,7 @@ export function VersusCard({ cupra, competitor }: { cupra?: string; competitor?:
   return (
     <section className="glass flex items-center justify-between rounded-[6px] p-3.5 animate-fade-up [animation-delay:0.2s]">
       <div className="flex flex-col gap-1">
-        <Overline className="text-white/50">This round</Overline>
+        <Overline className="text-white/50">Your exploration</Overline>
         <span className="text-[15px] font-medium">
           {cupra} <span className="font-light text-white/60">vs</span> {competitor}
         </span>
@@ -101,7 +101,6 @@ export function ExploreScreen({ config, round }: { config: WorkshopConfig; round
           );
         })}
       </ul>
-      <p className="text-center text-[12px] text-white/40">You&apos;ll name your top features in the next step.</p>
     </div>
   );
 }

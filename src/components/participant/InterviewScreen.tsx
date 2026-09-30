@@ -44,7 +44,7 @@ export function InterviewScreen({ config, round, me, onAsk }: InterviewProps) {
   };
 
   return (
-    <div className="flex flex-1 flex-col">
+    <div className={`flex flex-col ${done ? "" : "flex-1"}`}>
       <div className="flex flex-col gap-4 pt-5">
         <div className="flex flex-col gap-2">
           <p className="text-[14px] leading-[1.35] text-white/70">
@@ -94,11 +94,12 @@ export function InterviewScreen({ config, round, me, onAsk }: InterviewProps) {
           <Panel className="animate-slide-up">
             <Overline className="text-teal">Interview over</Overline>
             <p className="text-[15px] leading-[1.45]">
-              You uncovered {discovered.length} of {total} motives. The trainer reveals all of them in a moment.
+              You uncovered {discovered.length} of {total} motives. Reveal all of them when you are ready.
             </p>
           </Panel>
         )}
-        <div ref={endRef} className="h-2" />
+        {/* Platz unter dem letzten Element, damit die fixe Weiter-Leiste nichts verdeckt */}
+        <div ref={endRef} className={done ? "h-24" : "h-2"} />
       </div>
 
       {!done && (

@@ -17,6 +17,10 @@ export const WS_CONFIG = {
   /** Paar Feature/Motiv steht im Modell */
   POINTS_FEATURE_PAIR: 1,
 
+  /* Ablauf */
+  /** Gespielte Erkundungen (Persona/Wettbewerber-Paare) je Workshop. Die Konfiguration darf mehr enthalten, gespielt wird das erste Paar. */
+  EXPLORATIONS: 1,
+
   /* Plattform */
   STATE_POLL_MS: 2_000,
   PROGRESS_POLL_MS: 3_000,

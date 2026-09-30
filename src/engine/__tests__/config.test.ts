@@ -22,9 +22,11 @@ describe("Demo-Konfiguration", () => {
       r.persona.motives.forEach((pm) => expect(cfg.features.some((f) => f.motiveIds.includes(pm.motiveId))).toBe(true)),
     );
   });
-  it("hat zwei Runden mit eigener Persona und eigenem Wettbewerber", () => {
+  it("hat zwei konfigurierte Runden mit eigener Persona und eigenem Wettbewerber (gespielt wird die erste, Nico gegen MINI)", () => {
     const cfg = parseWorkshopConfig(demo);
     expect(cfg.rounds).toHaveLength(2);
+    expect(cfg.rounds[0].persona.name).toBe("Nico");
+    expect(cfg.rounds[0].competitorBrandId).toBe("mini");
     expect(cfg.rounds[0].competitorBrandId).not.toBe(cfg.rounds[1].competitorBrandId);
     expect(cfg.rounds[0].persona.name).not.toBe(cfg.rounds[1].persona.name);
   });

@@ -4,7 +4,7 @@ import { useCallback, useMemo } from "react";
 import { configForCode } from "@/data/config";
 import { WS_CONFIG } from "@/engine/config";
 import { maxPointsPerRound, pointsForFeature, pointsForInterviewTurn } from "@/engine/scoring";
-import { INITIAL_SESSION, sessionReducer } from "@/engine/session";
+import { activeRounds, INITIAL_SESSION, participantReducer, sessionReducer } from "@/engine/session";
 import type { InterviewTurn, ScoredFeature, SessionEvent, SessionState } from "@/engine/types";
 import { getScorer } from "@/scoring";
 import { getOrCreateUserId } from "./identity";
@@ -20,15 +20,26 @@ function wait(ms: number) {
 
 /**
  * Phase-0-Ersatz für den Server: Session und Teilnehmer im localStorage.
+ * Die Leinwand (`state`, `dispatch`) und der Teilnehmer (`me.phase`, `step`) laufen
+ * unabhängig: Teilnehmer gehen self-paced durch, der Trainer zeigt auf der Leinwand, was er will.
  * Die Rückgabe entspricht dem, was später `useSession(code)` vom Server liefert.
  */
 export function useLocalSession(code: string) {
   const config = useMemo(() => configForCode(code), [code]);
-  const rounds = config.rounds.length;
+  const rounds = activeRounds(config);
   const [state, setState, stateLoaded] = useStoredValue<SessionState>(sessionKey(code), INITIAL_SESSION);
-  const [me, setMe, meLoaded] = useStoredValue<Participant | null>(meKey(code), null);
+  const [storedMe, setMe, meLoaded] = useStoredValue<Participant | null>(meKey(code), null);
+  // Ältere gespeicherte Teilnehmer ohne eigene Phase starten in der Lobby
+  const me = useMemo(() => (storedMe ? { ...storedMe, phase: storedMe.phase ?? "lobby" } : null), [storedMe]);
 
+  /** Leinwand: Phase der Trainer-Ansicht */
   const dispatch = useCallback((event: SessionEvent) => setState((prev) => sessionReducer(prev, event, rounds)), [setState, rounds]);
+
+  /** Teilnehmer: eigene Phase weiter / zurück / von vorn */
+  const step = useCallback(
+    (event: SessionEvent) => setMe((prev) => (prev ? { ...prev, phase: participantReducer(prev.phase ?? "lobby", event) } : prev)),
+    [setMe],
+  );
 
   const join = useCallback(
     (displayName: string) => {
@@ -91,6 +102,7 @@ export function useLocalSession(code: string) {
     [config, code, setMe],
   );
 
+  /** Rundenabschluss: Zusammenfassung des Scorers, Punkte und Maximum der Runde. */
   const finishRound = useCallback(
     async (round: number) => {
       const scorer = getScorer();
@@ -118,10 +130,12 @@ export function useLocalSession(code: string) {
 
   return {
     config,
+    rounds,
     state,
     me,
     loaded: stateLoaded && meLoaded,
     dispatch,
+    step,
     join,
     leave,
     askQuestion,

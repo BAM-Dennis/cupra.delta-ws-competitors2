@@ -10,8 +10,9 @@ Konzept: [SAPERED_Workshop-App_Konzept_Aufwandsschaetzung_CompII.md](SAPERED_Wor
 
 Alle Screens des Teilnehmer-Flows und die Trainer-Leinwand mit Demo-Inhalt, im Look der CUPRA Streak Challenge. **Ohne Datenbank, ohne KI, ohne Geräte-Synchronisation.** Session und Teilnehmer liegen im `localStorage` des Browsers.
 
-- Trainer-Tab und Teilnehmer-Tab **im selben Browser** sind synchron: der Trainer klickt „Weiter“, der Teilnehmer-Tab folgt.
-- Auf einem anderen Gerät läuft der Teilnehmer-Flow unabhängig, mit `?dev=1` erscheint eine Leiste zum Durchklicken der Phasen.
+- **Self-paced:** Teilnehmer gehen mit „Weiter“-Buttons selbst durch alle Screens, der Trainer schiebt niemanden. Die Leinwand (`/t/demo`) läuft unabhängig davon mit eigener Steuerleiste; `?dev=1` blendet auf dem Teilnehmer-Gerät eine Leiste zum Durchspringen ein.
+- **Eine Erkundung:** gespielt wird das erste konfigurierte Paar (Nico gegen MINI), die zweite Runde bleibt in der Konfiguration (`WS_CONFIG.EXPLORATIONS`).
+- **Feedback-Screen** nach der Feature-Eingabe: aufgedeckte Motive, jedes Feature mit Bewertung (CUPRA-Feature, gültiges Paar) und Coaching-Satz, Rundenfazit und Punkte. Danach Ergebnis mit Leaderboard.
 - Beide Matcher laufen regelbasiert über den `keywordScorer`: die Persona antwortet mit festen Aufdeck- und Stups-Sätzen aus der Konfiguration, eine Fragewort-Heuristik entscheidet über offen/geschlossen, Features werden über Stichwörter erkannt. Mit simulierter Antwortzeit.
 - Mitspieler im Leaderboard, Fortschrittszahlen und die Gruppen-Nennungen in der Zusammenfassung sind Demo-Daten.
 
@@ -31,15 +32,15 @@ npm run dev          # http://localhost:3000
 | Route | Zweck |
 |---|---|
 | `/` | Einstieg: Session-Code eingeben, Demo-Links |
-| `/s/demo` | Teilnehmer-App (Session „demo“) |
-| `/s/demo?dev=1` | Teilnehmer-App mit Dev-Leiste zum Phasenwechsel |
+| `/s/demo` | Teilnehmer-App (Session „demo“), self-paced |
+| `/s/demo?dev=1` | Teilnehmer-App mit Dev-Leiste zum Durchspringen der Phasen |
 | `/t/demo` | Trainer-Leinwand mit Steuerleiste und QR-Code |
 
 Demo zurücksetzen: „Reset“ in der Trainer-Steuerleiste oder das Reset-Symbol in der Dev-Leiste.
 
 ## Ablauf
 
-Lobby → je Runde: Persona-Vorstellung, Interview, Motiv-Reveal, Erkundung, Feature-Eingabe → Zusammenfassung nach Motiv (Leinwand) → Leaderboard. Zwei Runden, zwei Personas, zwei Wettbewerber.
+Teilnehmer: Lobby → Persona-Vorstellung, Interview, Motiv-Reveal, Erkundung, Feature-Eingabe → Feedback → Ergebnis mit Leaderboard. Leinwand: Lobby → dieselbe Runde → Zusammenfassung nach Motiv → Leaderboard. Eine Erkundung (eine Persona, ein Wettbewerber).
 
 ## Skripte
 
@@ -55,7 +56,7 @@ Lobby → je Runde: Persona-Vorstellung, Interview, Motiv-Reveal, Erkundung, Fea
 - `src/engine/` – reine Funktionen: Konstanten (`config.ts`), Typen, zod-Schema der Konfiguration, Punkteregeln und Motiv-Clustering (`scoring.ts`), Session-Zustandsmaschine (`session.ts`).
 - `src/scoring/` – `Scorer`-Interface (`answerInterview`, `scoreFeature`, `summarizeRound`) und `keywordScorer`. Der `llmScorer` (Phase 2) implementiert dasselbe Interface.
 - `src/data/config/demo.json` – Konfiguration nach dem SAPERED-Seed-Content vom 14.09.2026: Marken, sechs Motive (drei je Persona: Nico gegen MINI, Sara gegen smart), acht Features mit Motiv-Zuordnung (many-to-many), Persona-Profile, Zitate, Probe-Themen, Aufdeck-Sätze, Stups-Texte und Erkundungs-Kategorien. **Platzhalter von SAPERED**, final bestätigt CUPRA. Die `keywords` an Motiven und Features sind Ergänzungen für den Keyword-Scorer.
-- `src/components/participant/` – Teilnehmer-Screens, `ParticipantApp.tsx` schaltet nach Phase.
+- `src/components/participant/` – Teilnehmer-Screens, `ParticipantApp.tsx` schaltet nach der eigenen Phase des Teilnehmers (`me.phase`), `ContinueBar` ist der Weiter-Button.
 - `src/components/trainer/` – Leinwand: `TrainerApp.tsx` (Kopf, Steuerleiste, Phasen-Stepper) und `views.tsx`.
 - `src/components/shared/` – Feedback-Element, Leaderboard, UI-Bausteine, Hintergründe und Icons aus der Streak Challenge.
 - `src/lib/` – `useLocalSession` (Phase-0-Ersatz für den Server), `storedValue` (localStorage mit Tab-Sync), `identity` (persistente Teilnehmer-ID), `demoData`.

@@ -81,7 +81,11 @@ export interface WorkshopConfig {
 
 /* ---------- Session ---------- */
 
-export type Phase = "lobby" | "persona" | "interview" | "motives" | "explore" | "features" | "summary" | "leaderboard" | "ended";
+/**
+ * Phasen. Trainer-Leinwand: lobby → Runde(n) → summary → leaderboard → ended.
+ * Teilnehmer (self-paced): lobby → Runde → feedback → leaderboard.
+ */
+export type Phase = "lobby" | "persona" | "interview" | "motives" | "explore" | "features" | "feedback" | "summary" | "leaderboard" | "ended";
 
 export interface SessionState {
   phase: Phase;

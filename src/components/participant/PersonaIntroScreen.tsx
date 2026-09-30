@@ -40,7 +40,6 @@ export function PersonaIntroScreen({ config, round }: { config: WorkshopConfig; 
       </section>
 
       <VersusCard cupra={cupra?.name} competitor={competitor?.name} />
-      <p className="text-center text-[12px] text-white/40">The trainer opens the interview.</p>
     </div>
   );
 }

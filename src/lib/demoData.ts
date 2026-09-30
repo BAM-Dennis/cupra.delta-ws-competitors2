@@ -1,6 +1,6 @@
 import { WS_CONFIG } from "@/engine/config";
 import { clusterFeaturesByMotive, maxPointsPerRound } from "@/engine/scoring";
-import { phaseSequence } from "@/engine/session";
+import { activeRounds, phaseAtOrAfter } from "@/engine/session";
 import type { LeaderboardEntry, MotiveCluster, Phase, ScoredFeature, WorkshopConfig } from "@/engine/types";
 import { participantScore, type Participant } from "./participant";
 
@@ -37,15 +37,19 @@ const DEMO_PEOPLE: Array<{ name: string; skill: number }> = [
 
 export const DEMO_PARTICIPANT_COUNT = DEMO_PEOPLE.length;
 
+/** Namen im Raum: Demo-Mitspieler plus der lokale Teilnehmer. */
+export function participantNames(me: Participant | null): string[] {
+  const names = DEMO_PEOPLE.map((p) => p.name);
+  if (me) names.unshift(me.displayName || "You");
+  return names;
+}
+
 /** Wie viele Punkte konnten die anderen bis zu dieser Phase maximal gesammelt haben? */
 function availablePoints(config: WorkshopConfig, phase: Phase, round: number): number {
-  const seq = phaseSequence(config.rounds.length);
-  const idx = seq.findIndex((s) => s.phase === phase && s.round === round);
   let pts = 0;
-  for (let r = 0; r < config.rounds.length; r++) {
-    // Runde zählt, sobald ihre letzte Eingabephase erreicht ist
-    const lastIdx = seq.findIndex((s) => s.phase === "features" && s.round === r);
-    if (lastIdx >= 0 && idx >= lastIdx) pts += maxPointsPerRound(config, r);
+  for (let r = 0; r < activeRounds(config); r++) {
+    // Runde zählt, sobald ihre letzte Eingabephase erreicht ist (Leinwand- und Teilnehmer-Phasen)
+    if (round > r || (round === r && phaseAtOrAfter(phase, "features"))) pts += maxPointsPerRound(config, r);
   }
   return pts;
 }
@@ -109,7 +113,7 @@ export function demoMotiveClusters(config: WorkshopConfig, me: Participant | nul
       const count = 2 + ((fi * 7 + mi * 3) % 9);
       for (let k = 0; k < count; k++) {
         fake.push({
-          round: k % 2,
+          round: 0,
           idx: 0,
           text: f.text,
           evaluation: { featureId: f.id, motiveId: m, pairValid: true },
@@ -123,6 +127,6 @@ export function demoMotiveClusters(config: WorkshopConfig, me: Participant | nul
   // Ein paar unerkannte Freitext-Nennungen, damit der Cluster realistisch aussieht
   const [m0, m1] = config.motives;
   if (m0) fake.push({ round: 0, idx: 0, text: "The way the car sits low on the road", evaluation: { featureId: null, motiveId: m0.id, pairValid: false }, feedback: "", points: 0, scorer: "keyword" });
-  if (m1) fake.push({ round: 1, idx: 0, text: "Drive mode sound in CUPRA mode", evaluation: { featureId: null, motiveId: m1.id, pairValid: false }, feedback: "", points: 0, scorer: "keyword" });
+  if (m1) fake.push({ round: 0, idx: 0, text: "Drive mode sound in CUPRA mode", evaluation: { featureId: null, motiveId: m1.id, pairValid: false }, feedback: "", points: 0, scorer: "keyword" });
   return clusterFeaturesByMotive(config, [...fake, ...(me?.features ?? [])]);
 }

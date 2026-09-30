@@ -2,29 +2,31 @@
 
 import { useEffect, useRef, useState } from "react";
 import { MAX_POINTS_PER_FEATURE, WS_CONFIG } from "@/engine/config";
-import { maxPointsPerRound } from "@/engine/scoring";
 import type { ScoredFeature, WorkshopConfig } from "@/engine/types";
 import type { Participant } from "@/lib/participant";
-import { Bar, Glyph, PointsBadge, TypingDots } from "../shared/bits";
+import { Bar, Glyph, TypingDots } from "../shared/bits";
 import { Criterion, FeedbackBubble } from "../shared/Feedback";
-import { Overline, Panel, SecondaryButton } from "../shared/ui";
+import { SecondaryButton } from "../shared/ui";
+import { ContinueBar } from "./ContinueBar";
 
-/* Feature-Eingabe (US-4): Feature plus Motiv, Feedback pro Feature */
+/* Feature-Eingabe (US-4): Feature plus Motiv, Sofort-Feedback pro Feature, dann weiter zum Feedback-Screen */
 
 interface FeaturesProps {
   config: WorkshopConfig;
   round: number;
   me: Participant;
   onSubmit: (text: string, motiveId: string) => Promise<unknown>;
+  /** Rundenabschluss: Zusammenfassung des Scorers berechnen */
   onFinish: () => Promise<unknown>;
+  /** Weiter zum Feedback-Screen */
+  onNext: () => void;
 }
 
-export function FeaturesScreen({ config, round, me, onSubmit, onFinish }: FeaturesProps) {
+export function FeaturesScreen({ config, round, me, onSubmit, onFinish, onNext }: FeaturesProps) {
   const r = config.rounds[round];
   const motives = r.persona.motives.map((pm) => config.motives.find((m) => m.id === pm.motiveId)!).filter(Boolean);
   const feats = me.features.filter((f) => f.round === round).sort((a, b) => a.idx - b.idx);
   const finished = me.roundFinished[round];
-  const summary = me.roundSummaries.find((s) => s.round === round);
   const [text, setText] = useState("");
   const [motiveId, setMotiveId] = useState<string>(motives[0]?.id ?? "");
   const [busy, setBusy] = useState<"score" | "finish" | null>(null);
@@ -36,20 +38,22 @@ export function FeaturesScreen({ config, round, me, onSubmit, onFinish }: Featur
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [feats.length, busy, finished]);
+  }, [feats.length, busy]);
 
+  /** Runde abschließen und zum Feedback wechseln */
   const finish = async () => {
+    if (busy) return;
     setBusy("finish");
     try {
       await onFinish();
     } finally {
       setBusy(null);
     }
+    onNext();
   };
 
   const send = async () => {
     if (!valid || busy || full || finished) return;
-    const willBeFull = feats.length + 1 >= WS_CONFIG.FEATURES_PER_ROUND;
     setBusy("score");
     setText("");
     try {
@@ -57,7 +61,6 @@ export function FeaturesScreen({ config, round, me, onSubmit, onFinish }: Featur
     } finally {
       setBusy(null);
     }
-    if (willBeFull) await finish();
   };
 
   return (
@@ -87,32 +90,17 @@ export function FeaturesScreen({ config, round, me, onSubmit, onFinish }: Featur
               </FeedbackBubble>
             </li>
           )}
+          {busy === "finish" && (
+            <li className="flex items-center gap-2 text-[14px] text-white/60 animate-fade-up">
+              <TypingDots /> Putting your feedback together
+            </li>
+          )}
         </ol>
-
-        {(finished || busy === "finish") && (
-          <Panel className="animate-slide-up">
-            <div className="flex items-center justify-between">
-              <Overline className="text-teal">Round {round + 1} complete</Overline>
-              {summary && <PointsBadge points={summary.points} max={maxPointsPerRound(config, round)} />}
-            </div>
-            {summary ? (
-              <p className="text-[15px] leading-[1.45]">{summary.text}</p>
-            ) : (
-              <div className="flex items-center gap-2 text-[14px] text-white/60">
-                <TypingDots /> Summarising your round
-              </div>
-            )}
-            {summary && <p className="text-[12px] text-white/40">The trainer moves everyone on when the room is ready.</p>}
-          </Panel>
-        )}
-        <div ref={endRef} className="h-2" />
+        {/* Platz unter dem letzten Element, damit die fixe Weiter-Leiste nichts verdeckt */}
+        <div ref={endRef} className={full || finished ? "h-24" : "h-2"} />
       </div>
 
-      {!finished && full && busy !== "finish" && (
-        <div className="sticky bottom-0 z-20 -mx-5 mt-auto bg-gradient-to-b from-transparent via-night/90 to-night px-5 pb-[max(16px,env(safe-area-inset-bottom))] pt-8">
-          <SecondaryButton onClick={() => void finish()}>Show round feedback</SecondaryButton>
-        </div>
-      )}
+      {(full || finished) && <ContinueBar label="See your feedback" onClick={() => void finish()} disabled={busy === "finish"} />}
 
       {!finished && !full && (
         <div className="sticky bottom-0 z-20 -mx-5 mt-auto bg-gradient-to-b from-transparent via-night/90 to-night px-5 pb-[max(16px,env(safe-area-inset-bottom))] pt-8">
@@ -158,7 +146,7 @@ export function FeaturesScreen({ config, round, me, onSubmit, onFinish }: Featur
             </div>
             {feats.length > 0 && (
               <SecondaryButton onClick={() => void finish()} className="!min-h-10 !py-2 text-[12px]">
-                Finish round with {feats.length} feature{feats.length > 1 ? "s" : ""}
+                See feedback with {feats.length} feature{feats.length > 1 ? "s" : ""}
               </SecondaryButton>
             )}
           </div>
