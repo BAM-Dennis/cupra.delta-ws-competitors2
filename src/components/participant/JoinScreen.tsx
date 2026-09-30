@@ -5,6 +5,7 @@ import { useState } from "react";
 import { WS_CONFIG } from "@/engine/config";
 import type { WorkshopConfig } from "@/engine/types";
 import { getOrCreateUserId, shortId } from "@/lib/identity";
+import { displayCode } from "@/lib/participant";
 import { useClientValue } from "@/lib/useClientValue";
 import { Background } from "../shared/Background";
 import { Glyph } from "../shared/bits";
@@ -37,9 +38,7 @@ export function JoinScreen({ config, code, onJoin }: Props) {
             <img alt="CUPRA" src="/design/emblem.svg" className="relative h-[102px] w-[132px]" />
           </div>
           <p className="mt-12 text-[11px] font-medium uppercase tracking-[2px] text-white/60">Global Launch Training</p>
-          <h1 className="mt-2 text-center text-[32px] font-light leading-[1.05]">
-            {config.title.split(" ").slice(0, -1).join(" ")} <span className="font-medium">{config.title.split(" ").at(-1)}</span>
-          </h1>
+          <h1 className="mt-2 text-center text-[32px] font-medium leading-[1.05]">{config.title}</h1>
           <p className="mt-4 max-w-[300px] text-center text-[15px] leading-[1.3] text-white/70">
             Interview your customer, uncover what drives them, find the CUPRA features that deliver. Your points count across the whole training series.
           </p>
@@ -48,7 +47,7 @@ export function JoinScreen({ config, code, onJoin }: Props) {
         <div className="mt-auto flex flex-col gap-3 pt-8">
           <div className="flex items-center justify-between rounded-[6px] border border-white/15 bg-white/5 px-4 py-3 text-[12px]">
             <span className="text-white/60">Session</span>
-            <span className="font-medium uppercase tracking-[2px]">{code}</span>
+            <span className="font-medium tracking-[2px]">{displayCode(code)}</span>
           </div>
           <div className="flex h-[54px] items-center rounded-[6px] border border-white/25 bg-white/5 px-4 focus-within:border-white/60">
             <input
@@ -57,7 +56,7 @@ export function JoinScreen({ config, code, onJoin }: Props) {
               maxLength={WS_CONFIG.DISPLAY_NAME_MAX}
               autoComplete="off"
               placeholder="Display name (optional)"
-              className="min-w-0 flex-1 bg-transparent text-[14px] uppercase tracking-[0.56px] text-white outline-none placeholder:text-white/50"
+              className="min-w-0 flex-1 bg-transparent text-[16px] text-white outline-none placeholder:text-[14px] placeholder:text-white/50"
             />
           </div>
           <p className="flex items-center justify-center gap-1.5 text-center text-[11px] text-white/40">

@@ -7,7 +7,8 @@ export function LeaderboardRow({ entry, highlighted, big = false }: { entry: Lea
   return (
     <li className={`flex items-center gap-[10px] rounded-[6px] ${h} ${tone}`} style={highlighted ? { backgroundColor: "#1f1e29" } : undefined}>
       <span className={`flex shrink-0 items-center justify-center font-medium leading-none tabular-nums ${big ? "w-10" : "size-6"}`}>{entry.rank}</span>
-      <span className="min-w-0 flex-1 truncate leading-none">{entry.displayName}</span>
+      {/* Normale Zeilenhöhe: bei leading-none schneidet overflow-hidden die Unterlängen (g, j, p, q, y) ab */}
+      <span className="min-w-0 flex-1 truncate leading-[1.35]">{entry.displayName}</span>
       <span className="font-medium leading-none tabular-nums">{entry.score}</span>
       <span className={`${big ? "text-[14px]" : "text-[11px]"} uppercase leading-none tracking-[1px] text-white/50`}>pts</span>
     </li>

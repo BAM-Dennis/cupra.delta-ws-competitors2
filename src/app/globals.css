@@ -80,6 +80,8 @@ body {
   color: #fff;
   font-family: var(--font-sans);
   font-weight: 350;
+  /* Kein Pinch-Zoom und kein Doppeltipp-Zoom im Workshop */
+  touch-action: manipulation;
 }
 
 @keyframes fade-up {
