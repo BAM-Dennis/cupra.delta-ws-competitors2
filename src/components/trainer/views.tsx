@@ -10,6 +10,7 @@ import { displayCode } from "@/lib/participant";
 import { useClientValue } from "@/lib/useClientValue";
 import { Bar, BigStat, Chip, Glyph } from "../shared/bits";
 import { LeaderboardList } from "../shared/LeaderboardList";
+import { PersonaAvatar } from "../shared/PersonaAvatar";
 
 const H = "text-[44px] font-light leading-none";
 const SUB = "text-[18px] leading-[1.4] text-white/70";
@@ -70,7 +71,7 @@ export function PersonaIntroView({ config, round }: { config: WorkshopConfig; ro
       <div className="flex flex-col gap-6">
         <ExplorationTag config={config} round={round} />
         <div className="flex items-center gap-6">
-          <div className="flex size-24 items-center justify-center rounded-full bg-copper-gradient text-[40px] font-medium">{r.persona.name[0]}</div>
+          <PersonaAvatar persona={r.persona} className="size-28 text-[40px]" />
           <div>
             <h1 className={H}>{r.persona.name}</h1>
             {r.persona.tagline && <p className="mt-2 text-[20px] text-white/60">{r.persona.tagline}</p>}
@@ -361,14 +362,13 @@ export function LeaderboardView({ leaderboard, ended }: { leaderboard: { top: Le
 
 /* ---------------- Hilfen ---------------- */
 
-/** Statt „Round 1 of 2“: die gespielte Erkundung, Persona gegen Wettbewerber. */
+/** Statt „Round 1 of 2“: die gespielte Persona. Der Wettbewerber steht dort, wo er Inhalt ist (Erkundung, Features). */
 function ExplorationTag({ config, round }: { config: WorkshopConfig; round: number }) {
   const r = config.rounds[round];
-  const competitor = config.brands.find((b) => b.id === r.competitorBrandId);
   return (
     <div className="flex items-center gap-2">
       <Chip tone="teal" className="!text-[13px] !px-4 !py-1.5">
-        {r.persona.name} vs {competitor?.short ?? competitor?.name}
+        {r.persona.name}
       </Chip>
       <Glyph name="spark" className="size-4 text-copper-light" />
     </div>

@@ -37,11 +37,11 @@ export function ParticipantApp({ code }: { code: string }) {
 
   const phase = me.phase;
   const round = ROUND;
-  const r = config.rounds[round];
   const score = participantScore(me);
   const progress = demoProgress(config, phase, round, me);
   const next = () => s.step({ type: "NEXT" });
-  const interviewDone = me.interviews.filter((t) => t.round === round).length >= config.interviewQuestions;
+  const questionsAsked = me.interviews.filter((t) => t.round === round).length;
+  const interviewDone = questionsAsked >= config.interviewQuestions;
 
   let body: React.ReactNode = null;
   let bar: React.ReactNode = null;
@@ -91,7 +91,13 @@ export function ParticipantApp({ code }: { code: string }) {
     <>
       <Background variant="blur" />
       <div className="relative flex flex-1 flex-col px-5 pb-[max(16px,env(safe-area-inset-bottom))]">
-        <AppHeader config={config} phase={phase} competitor={config.brands.find((b) => b.id === r.competitorBrandId)} score={score} displayName={me.displayName} />
+        <AppHeader
+          config={config}
+          phase={phase}
+          steps={phase === "interview" ? { done: questionsAsked, total: config.interviewQuestions, label: "question" } : undefined}
+          score={score}
+          displayName={me.displayName}
+        />
         {body}
         {bar}
       </div>

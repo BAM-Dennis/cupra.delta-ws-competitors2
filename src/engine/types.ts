@@ -39,6 +39,8 @@ export interface PersonaMotive {
 export interface Persona {
   name: string;
   tagline?: string;
+  /** Pfad zum Foto unter public/, z. B. "/design/personas/nico.jpg"; ohne Bild zeigt die App die Initiale */
+  image?: string;
   /** Kurze Selbstvorstellung, in der ersten Person */
   intro: string;
   /** Hintergrund für die KI-Rolle, nicht für die Teilnehmer sichtbar */

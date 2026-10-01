@@ -28,6 +28,7 @@ const roundSchema = z.object({
   persona: z.object({
     name: z.string().min(1),
     tagline: z.string().optional(),
+    image: z.string().startsWith("/").optional(),
     intro: z.string().min(1),
     background: z.string().optional(),
     motives: z.array(personaMotiveSchema).min(1),

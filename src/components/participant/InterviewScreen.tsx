@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { WS_CONFIG } from "@/engine/config";
-import type { InterviewTurn, WorkshopConfig } from "@/engine/types";
+import type { InterviewTurn, Persona, WorkshopConfig } from "@/engine/types";
 import { discoveredMotives, type Participant } from "@/lib/participant";
-import { Bar, Glyph, TypingDots } from "../shared/bits";
+import { Glyph, TypingDots } from "../shared/bits";
+import { PersonaAvatar } from "../shared/PersonaAvatar";
 import { Overline, Panel } from "../shared/ui";
 
 /* Interview (US-1): offene Fragen, Persona antwortet in der Rolle */
@@ -47,15 +48,10 @@ export function InterviewScreen({ config, round, me, onAsk }: InterviewProps) {
     <div className={`flex flex-col ${done ? "" : "flex-1"}`}>
       <div className="flex flex-col gap-4 pt-5">
         <div className="flex flex-col gap-2">
+          {/* Fragen-Fortschritt: die Schritt-Punkte neben dem Titel in der Kopfzeile */}
           <p className="text-[14px] leading-[1.35] text-white/70">
-            Ask <span className="font-medium text-white">{r.persona.name}</span> open questions. Why, how, what. Closed questions get you nowhere.
+            Ask <span className="font-medium text-white">{r.persona.name}</span> {config.interviewQuestions} open questions. Why, how, what. Closed questions get you nowhere.
           </p>
-          <div className="flex items-center gap-3">
-            <Bar value={turns.length / config.interviewQuestions} tone="teal" className="flex-1" />
-            <span className="text-[11px] font-medium uppercase tracking-[1px] text-white/60">
-              {turns.length} of {config.interviewQuestions} questions
-            </span>
-          </div>
           {/* Dezentes Signal (B7): Anzahl, nicht Benennung */}
           <div className="flex items-center gap-1.5">
             {r.persona.motives.map((m, i) => (
@@ -73,17 +69,17 @@ export function InterviewScreen({ config, round, me, onAsk }: InterviewProps) {
         <ol className="flex flex-col gap-4">
           {/* Persona eröffnet */}
           <li className="animate-fade-up">
-            <PersonaBubble name={r.persona.name}>
+            <PersonaBubble persona={r.persona}>
               <p className="text-[14px] leading-[1.4]">{r.persona.intro}</p>
             </PersonaBubble>
           </li>
           {turns.map((t) => (
-            <InterviewItem key={t.idx} turn={t} personaName={r.persona.name} />
+            <InterviewItem key={t.idx} turn={t} persona={r.persona} />
           ))}
           {busy && (
             <li className="flex flex-col gap-2 animate-fade-up">
               <div className="max-w-[85%] self-end rounded-[12px] rounded-br-[4px] bg-copper-gradient px-4 py-3 text-[15px] opacity-60">…</div>
-              <PersonaBubble name={r.persona.name}>
+              <PersonaBubble persona={r.persona}>
                 <TypingDots />
               </PersonaBubble>
             </li>
@@ -136,11 +132,11 @@ export function InterviewScreen({ config, round, me, onAsk }: InterviewProps) {
   );
 }
 
-function InterviewItem({ turn, personaName }: { turn: InterviewTurn; personaName: string }) {
+function InterviewItem({ turn, persona }: { turn: InterviewTurn; persona: Persona }) {
   return (
     <li className="flex flex-col gap-2 animate-fade-up">
       <div className="max-w-[85%] self-end rounded-[12px] rounded-br-[4px] bg-copper-gradient px-4 py-3 text-[15px] leading-[1.35]">{turn.question}</div>
-      <PersonaBubble name={personaName} highlight={Boolean(turn.discoveredMotiveId)}>
+      <PersonaBubble persona={persona} highlight={Boolean(turn.discoveredMotiveId)}>
         <p className="text-[14px] leading-[1.4]">{turn.reply}</p>
         {turn.discoveredMotiveId && (
           <span className="mt-2 inline-flex items-center gap-1 text-[10px] font-medium uppercase tracking-[1px] text-copper-light">
@@ -157,11 +153,12 @@ function InterviewItem({ turn, personaName }: { turn: InterviewTurn; personaName
   );
 }
 
-/** Sprechblase der Persona. Platzhalter-Gestaltung, kommt vom Grafiker. */
-function PersonaBubble({ name, children, highlight = false }: { name: string; children: React.ReactNode; highlight?: boolean }) {
+/** Sprechblase der Persona mit Foto (oder Initiale). Platzhalter-Gestaltung, kommt vom Grafiker. */
+function PersonaBubble({ persona, children, highlight = false }: { persona: Persona; children: React.ReactNode; highlight?: boolean }) {
+  const name = persona.name;
   return (
     <div className="flex max-w-[92%] items-start gap-2.5 self-start">
-      <span className="mt-1 flex size-7 shrink-0 items-center justify-center rounded-full bg-copper-gradient text-[12px] font-medium">{name[0]}</span>
+      <PersonaAvatar persona={persona} className="mt-1 size-7 text-[12px]" />
       <div className={`flex min-w-0 flex-col rounded-[12px] rounded-tl-[4px] border px-4 py-3 backdrop-blur-[10px] ${highlight ? "border-copper/60 bg-copper/15 shadow-[0_0_16px_rgba(183,127,88,0.25)]" : "border-white/15 bg-white/5"}`}>
         <span className="mb-1 text-[10px] font-medium uppercase tracking-[1px] text-white/50">{name}</span>
         {children}

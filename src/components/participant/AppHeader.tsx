@@ -1,13 +1,12 @@
-import { isRoundPhase } from "@/engine/session";
-import type { Brand, Phase, WorkshopConfig } from "@/engine/types";
-import { Chip } from "../shared/bits";
+import type { Phase, WorkshopConfig } from "@/engine/types";
+import { StepDots } from "../shared/bits";
 import { Overline } from "../shared/ui";
 
 interface Props {
   config: WorkshopConfig;
   phase: Phase;
-  /** Wettbewerber der gespielten Erkundung */
-  competitor?: Brand;
+  /** Schritt-Punkte neben dem Titel, z. B. gestellte Interview-Fragen */
+  steps?: { done: number; total: number; label?: string };
   score: number;
   displayName?: string;
 }
@@ -25,15 +24,15 @@ const PHASE_TEXT: Record<Phase, string> = {
   ended: "Results",
 };
 
-/** Kopfzeile der Teilnehmer-App: Workshop, Phase, Wettbewerber, eigener Punktestand. */
-export function AppHeader({ config, phase, competitor, score, displayName }: Props) {
+/** Kopfzeile der Teilnehmer-App: Workshop, Phase (optional mit Schritt-Punkten), eigener Punktestand. */
+export function AppHeader({ config, phase, steps, score, displayName }: Props) {
   return (
     <header className="flex items-start justify-between gap-3 pt-[max(16px,env(safe-area-inset-top))]">
       <div className="flex min-w-0 flex-col gap-1.5">
         <Overline className="truncate text-white/50">{config.title}</Overline>
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className="flex flex-wrap items-center gap-2.5">
           <span className="text-[18px] font-medium leading-none">{PHASE_TEXT[phase]}</span>
-          {isRoundPhase(phase) && competitor && <Chip tone="teal">vs {competitor.short ?? competitor.name}</Chip>}
+          {steps && <StepDots done={steps.done} total={steps.total} label={steps.label} />}
         </div>
       </div>
       <div className="flex shrink-0 flex-col items-end gap-0.5">

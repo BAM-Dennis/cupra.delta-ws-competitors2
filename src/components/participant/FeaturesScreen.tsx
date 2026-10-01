@@ -6,10 +6,9 @@ import type { ScoredFeature, WorkshopConfig } from "@/engine/types";
 import type { Participant } from "@/lib/participant";
 import { Bar, Glyph, TypingDots } from "../shared/bits";
 import { Criterion, FeedbackBubble } from "../shared/Feedback";
-import { SecondaryButton } from "../shared/ui";
 import { ContinueBar } from "./ContinueBar";
 
-/* Feature-Eingabe (US-4): Feature plus Motiv, Sofort-Feedback pro Feature, dann weiter zum Feedback-Screen */
+/* Feature-Eingabe (US-4): Feature plus Motiv, Sofort-Feedback pro Feature. Weiter zum Feedback erst, wenn alle Features genannt sind. */
 
 interface FeaturesProps {
   config: WorkshopConfig;
@@ -144,11 +143,6 @@ export function FeaturesScreen({ config, round, me, onSubmit, onFinish, onNext }
                 <Glyph name="arrow-right" className="size-5" />
               </button>
             </div>
-            {feats.length > 0 && (
-              <SecondaryButton onClick={() => void finish()} className="!min-h-10 !py-2 text-[12px]">
-                See feedback with {feats.length} feature{feats.length > 1 ? "s" : ""}
-              </SecondaryButton>
-            )}
           </div>
         </div>
       )}

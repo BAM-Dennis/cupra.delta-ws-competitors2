@@ -33,24 +33,6 @@ export function LobbyScreen({ me, participants }: { me: Participant; participant
 }
 
 /* ------------------------------------------------------------------ */
-/* Wettbewerber der Runde                                              */
-/* ------------------------------------------------------------------ */
-
-export function VersusCard({ cupra, competitor }: { cupra?: string; competitor?: string }) {
-  return (
-    <section className="glass flex items-center justify-between rounded-[6px] p-3.5 animate-fade-up [animation-delay:0.2s]">
-      <div className="flex flex-col gap-1">
-        <Overline className="text-white/50">Your exploration</Overline>
-        <span className="text-[15px] font-medium">
-          {cupra} <span className="font-light text-white/60">vs</span> {competitor}
-        </span>
-      </div>
-      <Glyph name="arrow-right" className="size-5 text-copper-light" />
-    </section>
-  );
-}
-
-/* ------------------------------------------------------------------ */
 /* Exploration (C1): App passiv, Motive der Persona als Leitplanken   */
 /* ------------------------------------------------------------------ */
 

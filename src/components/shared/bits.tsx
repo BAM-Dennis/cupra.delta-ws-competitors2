@@ -84,6 +84,26 @@ export function Bar({ value, className = "", tone = "copper" }: { value: number;
   );
 }
 
+/** Nummerierte Schritt-Punkte ① ② ③, gefüllt in Teal, sobald ein Schritt erledigt ist. Dezenter Ersatz für einen Balken. */
+export function StepDots({ done, total, label = "step" }: { done: number; total: number; label?: string }) {
+  return (
+    <ol className="flex items-center gap-1.5" aria-label={`${Math.min(done, total)} of ${total} ${label}s`}>
+      {Array.from({ length: total }, (_, i) => {
+        const filled = i < done;
+        return (
+          <li
+            key={i}
+            aria-current={!filled && i === done ? "step" : undefined}
+            className={`flex size-[18px] items-center justify-center rounded-full border text-[10px] font-medium leading-none tabular-nums transition ${filled ? "border-teal bg-teal text-night shadow-glow" : "border-white/30 text-white/50"}`}
+          >
+            {i + 1}
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
 /** Große Kennzahl mit Label darunter */
 export function BigStat({ value, label, className = "" }: { value: ReactNode; label: string; className?: string }) {
   return (

@@ -1,15 +1,13 @@
 "use client";
 
 import type { WorkshopConfig } from "@/engine/types";
+import { PersonaAvatar } from "../shared/PersonaAvatar";
 import { Overline, Panel } from "../shared/ui";
-import { VersusCard } from "./Screens";
 
-/* Persona stellt sich vor (B1): Motive bleiben verdeckt */
+/* Persona stellt sich vor (B1): Motive bleiben verdeckt. Der Wettbewerber kommt erst in der Erkundung ins Spiel. */
 
 export function PersonaIntroScreen({ config, round }: { config: WorkshopConfig; round: number }) {
   const r = config.rounds[round];
-  const competitor = config.brands.find((b) => b.id === r.competitorBrandId);
-  const cupra = config.brands.find((b) => b.isCupra);
   return (
     <div className="flex flex-col gap-5 pt-6">
       <Panel className="animate-fade-up">
@@ -19,7 +17,7 @@ export function PersonaIntroScreen({ config, round }: { config: WorkshopConfig; 
             <h2 className="mt-2 text-[30px] font-light leading-none">{r.persona.name}</h2>
             {r.persona.tagline && <p className="mt-1.5 text-[13px] text-white/60">{r.persona.tagline}</p>}
           </div>
-          <div className="flex size-14 shrink-0 items-center justify-center rounded-full bg-copper-gradient text-[22px] font-medium">{r.persona.name[0]}</div>
+          <PersonaAvatar persona={r.persona} className="size-16 text-[24px]" />
         </div>
         <p className="text-[15px] leading-[1.45] text-white/85">“{r.persona.intro}”</p>
       </Panel>
@@ -38,8 +36,6 @@ export function PersonaIntroScreen({ config, round }: { config: WorkshopConfig; 
           ))}
         </div>
       </section>
-
-      <VersusCard cupra={cupra?.name} competitor={competitor?.name} />
     </div>
   );
 }
